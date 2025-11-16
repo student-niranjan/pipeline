@@ -1,0 +1,33 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Checkout') {
+            steps {
+                git branch: 'main',
+                    url: 'https://github.com/student-niranjan/pipeline.git',
+                    credentialsId: 'github-token'
+            }
+        }
+
+        stage('Build') {
+            steps {
+                echo "Building website..."
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                echo "Deploying website..."
+                bat 'xcopy /E /Y * C:\\deploy-folder\\'
+
+                rem *** Open website in Chrome ***
+                bat 'start chrome "C:\\deploy-folder\\index.html"'
+            }
+        }
+    }
+
+    triggers {
+        githubPush()
+    }
+}
