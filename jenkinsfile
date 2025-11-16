@@ -66,7 +66,7 @@ pipeline {
                 echo "✅ Pipeline finished successfully!"
                 // -------------------------------
                 // Browser link (matches IIS folder)
-                echo "👉 About Me page: http://localhost/practical1/about.html"
+                echo "👉 About Me page: http://localhost/New/index.html"
             }
         }
     }
