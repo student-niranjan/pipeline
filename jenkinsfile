@@ -4,25 +4,28 @@ pipeline {
     environment {
         // -------------------------------
         // CHANGE THIS: IIS deployment folder
+        // Ensure IIS is running and Jenkins has permission to write here
         DEPLOY_DIR = "C:\\inetpub\\wwwroot\\practical1"
-        
+
         // -------------------------------
-        // CHANGE THIS: GitHub repository URL
+        // CHANGE THIS: Local source folder (your OneDrive folder with files)
+        // Must include quotes due to spaces in path
+        SOURCE_DIR = "C:\\Users\\Niranjan\\OneDrive\\Documents\\New folder"
+
+        // -------------------------------
+        // CHANGE THIS: GitHub repository URL (optional if using Git)
         GIT_REPO = "https://github.com/student-niranjan/pipeline.git"
-        
+
         // -------------------------------
         // OPTIONAL: Git credentials ID configured in Jenkins
         GIT_CREDENTIALS = "github-jenkins"
-
-        // -------------------------------
-        // CHANGE THIS: Local source folder (with spaces properly handled)
-        SOURCE_DIR = "C:\\Users\\Niranjan\\OneDrive\\Documents\\New folder"
     }
 
     stages {
-        stage('Checkout SCM') {
+        stage('Checkout SCM (Optional)') {
             steps {
                 echo "Cloning project from GitHub..."
+                // Remove this stage if you are not using Git
                 git branch: 'main',
                     url: "${GIT_REPO}",
                     credentialsId: "${GIT_CREDENTIALS}"
@@ -37,7 +40,7 @@ pipeline {
 
         stage('Deploy') {
             steps {
-                echo "Deploying portfolio files from ${SOURCE_DIR} to IIS folder: ${DEPLOY_DIR}"
+                echo "Deploying portfolio files from '${SOURCE_DIR}' to IIS folder: ${DEPLOY_DIR}"
 
                 // Create folder if it doesn't exist
                 bat "if not exist \"${DEPLOY_DIR}\" mkdir \"${DEPLOY_DIR}\""
@@ -61,8 +64,9 @@ pipeline {
         stage('Post Actions') {
             steps {
                 echo "✅ Pipeline finished successfully!"
+                // -------------------------------
                 // Browser link (matches IIS folder)
-                echo "👉 Open in browser: http://localhost/practical1/"
+                echo "👉 About Me page: http://localhost/practical1/about.html"
             }
         }
     }
