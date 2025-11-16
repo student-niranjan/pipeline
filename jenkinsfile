@@ -21,7 +21,6 @@ pipeline {
             steps {
                 echo "Deploying website..."
 
-                // Copy website files to deploy folder
                 bat '''
                     if not exist C:\\deploy-folder mkdir C:\\deploy-folder
                     xcopy /E /I /Y * C:\\deploy-folder\\
@@ -35,18 +34,15 @@ pipeline {
             steps {
                 echo "Starting local server on http://localhost:9090"
 
-                // Start local Python HTTP server
                 bat '''
-                    powershell -Command "Start-Process powershell -ArgumentList '-NoExit','-Command','cd C:\\deploy-folder; python -m http.server 9090'"
+                    cd C:\\deploy-folder
+                    start "" python -m http.server 9090
                 '''
 
-                // Print clickable link
                 echo "---------------------------------------------"
-                echo " WEBSITE DEPLOYED SUCCESSFULLY! "
-                echo ""
+                echo " WEBSITE DEPLOYED SUCCESSFULLY!"
                 echo " Open your site in browser:"
-                echo " ▶ ▶ http://localhost:9090"
-                echo ""
+                echo " ▶ http://localhost:9090"
                 echo "---------------------------------------------"
             }
         }
