@@ -1,46 +1,57 @@
 pipeline {
     agent any
 
+    environment {
+        // Deploy under a subfolder: C:\inetpub\wwwroot\practical1
+        DEPLOY_DIR = 'C:\\inetpub\\wwwroot\\practical1'
+    }
+
     stages {
-        
         stage('Checkout') {
             steps {
-                git url: 'https://github.com/student-niranjan/pipeline.git', branch: 'main', credentialsId: 'github-jenkins'
+                echo 'Cloning project from GitHub...'
+                git branch: 'main', url: 'https://github.com/student-niranjan/pipeline.git'
             }
         }
 
         stage('Build') {
             steps {
-                echo "Building website..."
+                echo 'Static portfolio site – no build step needed.'
+                bat 'dir'
             }
         }
 
         stage('Deploy') {
             steps {
-                echo "Deploying website..."
-                bat '''
-                    if not exist C:\\deploy-folder mkdir C:\\deploy-folder
-                    xcopy /E /I /Y * C:\\deploy-folder\\
-                '''
-                echo "Files deployed to C:\\deploy-folder"
+                echo "Deploying portfolio files to IIS folder: %DEPLOY_DIR%"
+
+                bat """
+                if not exist "%DEPLOY_DIR%" mkdir "%DEPLOY_DIR%"
+
+                xcopy /Y /I "index.html" "%DEPLOY_DIR%\\"
+                xcopy /Y /I "about.html" "%DEPLOY_DIR%\\"
+                xcopy /Y /I "style.css" "%DEPLOY_DIR%\\"
+
+                rem If you have an assets/img folder, copy it too:
+                if exist "assets" xcopy /Y /I /E "assets" "%DEPLOY_DIR%\\assets\\"
+                """
             }
         }
 
-        stage('Start Local Web Server') {
+        stage('Run HTTP Server (IIS serves it)') {
             steps {
-                echo "Starting local server on http://localhost:9090"
-
-                bat '''
-                    cd C:\\deploy-folder
-                    start /B python -m http.server 9090
-                '''
-
-                echo "---------------------------------------------"
-                echo " WEBSITE DEPLOYED SUCCESSFULLY! "
-                echo ""
-                echo " ▶ ▶ http://localhost:9090"
-                echo "---------------------------------------------"
+                echo 'IIS will serve the website. No extra server is started by Jenkins.'
             }
+        }
+    }
+
+    post {
+        success {
+            echo '✅ Pipeline finished successfully!'
+            echo '👉 Open in browser: http://localhost/Newfolder/index.html'
+        }
+        failure {
+            echo '❌ Pipeline failed! Check build logs.'
         }
     }
 }
