@@ -19,10 +19,17 @@ pipeline {
         stage('Deploy') {
             steps {
                 echo "Deploying website..."
-                bat 'xcopy /E /Y * C:\\deploy-folder\\'
 
-                rem *** Open website in Chrome ***
-                bat 'start chrome "C:\\deploy-folder\\index.html"'
+                // Copy files to deployment folder
+                bat '''
+                    xcopy /E /Y * C:\\deploy-folder\\
+                '''
+
+                // Open Chrome (Windows)
+                bat '''
+                    rem Open website in Chrome
+                    start chrome "C:\\deploy-folder\\index.html"
+                '''
             }
         }
     }
