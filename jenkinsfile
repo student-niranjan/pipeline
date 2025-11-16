@@ -25,11 +25,12 @@ pipeline {
                     xcopy /E /Y * C:\\deploy-folder\\
                 '''
 
-                // Open Chrome (Windows)
-                bat '''
-                    rem Open website in Chrome
-                    start chrome "C:\\deploy-folder\\index.html"
-                '''
+                // Generate link in console
+                echo "--------------------------------------------"
+                echo "Website deployed successfully!"
+                echo "Click here to open your site:"
+                echo "file:///C:/deploy-folder/index.html"
+                echo "--------------------------------------------"
             }
         }
     }
