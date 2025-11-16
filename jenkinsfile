@@ -2,56 +2,68 @@ pipeline {
     agent any
 
     environment {
-        // Deploy under a subfolder: C:\inetpub\wwwroot\practical1
-        DEPLOY_DIR = 'C:\\inetpub\\wwwroot\\practical1'
+        // -------------------------------
+        // CHANGE THIS: IIS deployment folder
+        DEPLOY_DIR = "C:\\inetpub\\wwwroot\\practical1"
+        
+        // -------------------------------
+        // CHANGE THIS: GitHub repository URL
+        GIT_REPO = "https://github.com/student-niranjan/pipeline.git"
+        
+        // -------------------------------
+        // OPTIONAL: Git credentials ID configured in Jenkins
+        GIT_CREDENTIALS = "github-jenkins"
+
+        // -------------------------------
+        // CHANGE THIS: Local source folder (with spaces properly handled)
+        SOURCE_DIR = "C:\\Users\\Niranjan\\OneDrive\\Documents\\New folder"
     }
 
     stages {
-        stage('Checkout') {
+        stage('Checkout SCM') {
             steps {
-                echo 'Cloning project from GitHub...'
-                git branch: 'main', url: 'https://github.com/student-niranjan/pipeline.git'
+                echo "Cloning project from GitHub..."
+                git branch: 'main',
+                    url: "${GIT_REPO}",
+                    credentialsId: "${GIT_CREDENTIALS}"
             }
         }
 
         stage('Build') {
             steps {
-                echo 'Static portfolio site – no build step needed.'
-                bat 'dir'
+                echo "Static portfolio site – no build step needed."
             }
         }
 
         stage('Deploy') {
             steps {
-                echo "Deploying portfolio files to IIS folder: %DEPLOY_DIR%"
+                echo "Deploying portfolio files from ${SOURCE_DIR} to IIS folder: ${DEPLOY_DIR}"
 
-                bat """
-                if not exist "%DEPLOY_DIR%" mkdir "%DEPLOY_DIR%"
+                // Create folder if it doesn't exist
+                bat "if not exist \"${DEPLOY_DIR}\" mkdir \"${DEPLOY_DIR}\""
 
-                xcopy /Y /I "index.html" "%DEPLOY_DIR%\\"
-                xcopy /Y /I "about.html" "%DEPLOY_DIR%\\"
-                xcopy /Y /I "style.css" "%DEPLOY_DIR%\\"
+                // Copy HTML and CSS files
+                bat "xcopy /Y /I \"${SOURCE_DIR}\\index.html\" \"${DEPLOY_DIR}\\\""
+                bat "xcopy /Y /I \"${SOURCE_DIR}\\about.html\" \"${DEPLOY_DIR}\\\""
+                bat "xcopy /Y /I \"${SOURCE_DIR}\\style.css\" \"${DEPLOY_DIR}\\\""
 
-                rem If you have an assets/img folder, copy it too:
-                if exist "assets" xcopy /Y /I /E "assets" "%DEPLOY_DIR%\\assets\\"
-                """
+                // Copy assets folder if it exists
+                bat "if exist \"${SOURCE_DIR}\\assets\" xcopy /Y /I /E \"${SOURCE_DIR}\\assets\" \"${DEPLOY_DIR}\\assets\\\""
             }
         }
 
-        stage('Run HTTP Server (IIS serves it)') {
+        stage('Run HTTP Server') {
             steps {
-                echo 'IIS will serve the website. No extra server is started by Jenkins.'
+                echo "IIS will serve the website. No extra server is started by Jenkins."
             }
         }
-    }
 
-    post {
-        success {
-            echo '✅ Pipeline finished successfully!'
-            echo '👉 Open in browser: http://localhost/Newfolder/index.html'
-        }
-        failure {
-            echo '❌ Pipeline failed! Check build logs.'
+        stage('Post Actions') {
+            steps {
+                echo "✅ Pipeline finished successfully!"
+                // Browser link (matches IIS folder)
+                echo "👉 Open in browser: http://localhost/practical1/"
+            }
         }
     }
 }
