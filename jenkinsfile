@@ -2,12 +2,10 @@ pipeline {
     agent any
 
     stages {
-
+        
         stage('Checkout') {
             steps {
-                git branch: 'main',
-                    url: 'https://github.com/student-niranjan/pipeline.git',
-                    credentialsId: 'github-token'
+                git url: 'https://github.com/student-niranjan/pipeline.git', branch: 'main', credentialsId: 'github-jenkins'
             }
         }
 
@@ -20,12 +18,10 @@ pipeline {
         stage('Deploy') {
             steps {
                 echo "Deploying website..."
-
                 bat '''
                     if not exist C:\\deploy-folder mkdir C:\\deploy-folder
                     xcopy /E /I /Y * C:\\deploy-folder\\
                 '''
-
                 echo "Files deployed to C:\\deploy-folder"
             }
         }
@@ -36,19 +32,15 @@ pipeline {
 
                 bat '''
                     cd C:\\deploy-folder
-                    start "" python -m http.server 9090
+                    start /B python -m http.server 9090
                 '''
 
                 echo "---------------------------------------------"
-                echo " WEBSITE DEPLOYED SUCCESSFULLY!"
-                echo " Open your site in browser:"
-                echo " ▶ http://localhost:9090"
+                echo " WEBSITE DEPLOYED SUCCESSFULLY! "
+                echo ""
+                echo " ▶ ▶ http://localhost:9090"
                 echo "---------------------------------------------"
             }
         }
-    }
-
-    triggers {
-        githubPush()
     }
 }
