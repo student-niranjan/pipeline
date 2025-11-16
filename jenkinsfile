@@ -2,6 +2,7 @@ pipeline {
     agent any
 
     stages {
+
         stage('Checkout') {
             steps {
                 git branch: 'main',
@@ -20,17 +21,33 @@ pipeline {
             steps {
                 echo "Deploying website..."
 
-                // Copy files to deployment folder
+                // Copy website files to deploy folder
                 bat '''
-                    xcopy /E /Y * C:\\deploy-folder\\
+                    if not exist C:\\deploy-folder mkdir C:\\deploy-folder
+                    xcopy /E /I /Y * C:\\deploy-folder\\
                 '''
 
-                // Generate link in console
-                echo "--------------------------------------------"
-                echo "Website deployed successfully!"
-                echo "Click here to open your site:"
-                echo "file:///C:/deploy-folder/index.html"
-                echo "--------------------------------------------"
+                echo "Files deployed to C:\\deploy-folder"
+            }
+        }
+
+        stage('Start Local Web Server') {
+            steps {
+                echo "Starting local server on http://localhost:9090"
+
+                // Start local Python HTTP server
+                bat '''
+                    powershell -Command "Start-Process powershell -ArgumentList '-NoExit','-Command','cd C:\\deploy-folder; python -m http.server 9090'"
+                '''
+
+                // Print clickable link
+                echo "---------------------------------------------"
+                echo " WEBSITE DEPLOYED SUCCESSFULLY! "
+                echo ""
+                echo " Open your site in browser:"
+                echo " ▶ ▶ http://localhost:9090"
+                echo ""
+                echo "---------------------------------------------"
             }
         }
     }
